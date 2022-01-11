@@ -1,10 +1,7 @@
 import React, { useState } from 'react'
-
-const Person = ({name, number}) => {
-  return(
-    <div>{name} {number}</div>
-  )
-}
+import Filter from './components/Filter'
+import AddNewRecord from './components/AddNewRecord'
+import RecordList from './components/RecordList'
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -29,7 +26,7 @@ const App = () => {
     setNewFilter(event.target.value)
   }  
 
-  const addNewName = (event) =>{
+  const addNewRecord = (event) =>{
     event.preventDefault()
     const isNewName = persons.every((person) => (person.name !== newName))
     if (!isNewName) {
@@ -50,33 +47,15 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
-      <div>
-          filter shown with: <input
-                  value={newFilter}
-                  onChange={handleFilterChange}
-                />
-      </div>
-      <h2>add a new</h2>
-      <form onSubmit={addNewName}>
-        <div>
-          name: <input
-                  value={newName}
-                  onChange={handleNameChange}
-                />
-        </div>
-        <div>
-          number: <input
-                  value={newNumber}
-                  onChange={handleNumberChange}
-                />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
-      {filteredPersons.map((person) => <Person key={person.id} name={person.name} number={person.number}/>)}
+      <h1>Phonebook</h1>
+      <Filter newFilter={newFilter} handleFilterChange={handleFilterChange} />
+      <AddNewRecord name={newName}
+                    onNameChange={handleNameChange}
+                    number={newNumber}
+                    onNumberChange={handleNumberChange}
+                    addRecord={addNewRecord}
+      />
+      <RecordList persons={filteredPersons} />
     </div>
   )
 }
