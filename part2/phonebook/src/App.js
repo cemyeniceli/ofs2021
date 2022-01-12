@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import Filter from './components/Filter'
 import AddNewRecord from './components/AddNewRecord'
 import RecordList from './components/RecordList'
+import phoneBookService from './services/phoneBookService'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
@@ -11,10 +11,10 @@ const App = () => {
   const [newFilter, setNewFilter] = useState('')
 
   const getPersonRecords = () => {
-    axios
-      .get('http://localhost:3001/persons')
+    phoneBookService
+      .getAll()
       .then(response => {
-        setPersons(response.data)
+        setPersons(response)
       })
   }
 
@@ -36,17 +36,42 @@ const App = () => {
     event.preventDefault()
     const isNewName = persons.every((person) => (person.name !== newName))
     if (!isNewName) {
-      alert(`${newName} is already added to phonebook`)  
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        const personToUpdate = persons.find(person => person.name === newName)
+        const personToUpdateId = personToUpdate.id
+        const updatedPerson = {...personToUpdate, number:newNumber}
+        phoneBookService
+          .update(personToUpdateId, updatedPerson)
+          .then(response => {
+            setPersons(persons.map(person => person.id !== personToUpdateId ? person : response))
+          })
+      }
     } else {
       const newPerson = {
         name: newName,
         number: newNumber,
         id: persons.length + 1
       }
-      setPersons(persons.concat(newPerson))
+      phoneBookService
+        .create(newPerson)
+        .then(response => setPersons(persons.concat(response)))
     }
     setNewName('')
     setNewNumber('')  
+  }
+
+  const deleteRecord = (id) => {
+    const personToDelete = persons.find(p => p.id === id)
+    if (window.confirm(`Delete ${personToDelete.name} ?`)) {
+      phoneBookService
+      .remove(id)
+      .then(setPersons(persons.filter(p => p.id !== id)))
+    }
+  }
+
+  const handleDeleteClick = (id) => {
+    const handler = () => deleteRecord(id)
+    return handler
   }
 
   const filteredPersons = persons.filter((person) => person.name.toLowerCase().includes(newFilter.toLowerCase()))
@@ -61,7 +86,7 @@ const App = () => {
                     onNumberChange={handleNumberChange}
                     addRecord={addNewRecord}
       />
-      <RecordList persons={filteredPersons} />
+      <RecordList persons={filteredPersons} onDelete={handleDeleteClick} />
     </div>
   )
 }
