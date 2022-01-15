@@ -52,8 +52,12 @@ const App = () => {
             },5000)
           })
           .catch(error => {
-            setPersons(persons.filter(person => person.id !== personToUpdateId))
-            setMessage({type:'error', content:`${updatedPerson.name} is already deleted`})
+            if (error.response.data) {
+              setMessage({type:'error', content:error.response.data})
+            } else {
+              setPersons(persons.filter(person => person.id !== personToUpdateId))
+              setMessage({type:'error', content:`${updatedPerson.name} is already deleted`})  
+            }
             setTimeout(() => {
               setMessage({type:'success', content:''})
             },5000)
