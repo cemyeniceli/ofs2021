@@ -53,7 +53,7 @@ const App = () => {
           })
           .catch(error => {
             if (error.response.data) {
-              setMessage({type:'error', content:error.response.data})
+              setMessage({type:'error', content:error.response.data.error})
             } else {
               setPersons(persons.filter(person => person.id !== personToUpdateId))
               setMessage({type:'error', content:`${updatedPerson.name} is already deleted`})  
@@ -77,7 +77,7 @@ const App = () => {
             setMessage({type:'success', content:''})
           },5000)
         })
-        .catch(error => setMessage({type:'error', content:error.response.data}))
+        .catch(error => setMessage({type:'error', content:error.response.data.error}))
     }
     setNewName('')
     setNewNumber('')  
